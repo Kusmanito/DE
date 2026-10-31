@@ -1,18 +1,58 @@
 <?php
+session_start();
+require_once __DIR__ . '/../helpers/db.php';
+
 $pageTitle = 'Регистрация — Корочки.Есть';
 $breadcrumbs = [
     ['title' => 'Главная', 'url' => '/DE/korochki/pages/index.php'],
     ['title' => 'Регистрация', 'url' => '#']
 ];
-$navButtons = [
-    ['title' => 'Вход', 'url' => '/DE/korochki/pages/auth.php']
-];
+
+$error = '';
+$success = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $login = trim($_POST['login'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $fio = trim($_POST['fio'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+
+    if (strlen($login) < 6) {
+        $error = 'Логин должен быть не менее 6 символов.';
+    } elseif (strlen($password) < 8) {
+        $error = 'Пароль должен быть не менее 8 символов.';
+    } elseif (!preg_match('/^[а-яА-ЯёЁ\s]+$/u', $fio)) {
+        $error = 'ФИО должно содержать только кириллицу и пробелы.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Неверный формат email.';
+    } else {
+        try {
+            $stmt = $pdo->prepare("SELECT id_user FROM users WHERE login = ?");
+            $stmt->execute([$login]);
+            if ($stmt->fetch()) {
+                $error = 'Пользователь с таким логином уже существует.';
+            } else {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("INSERT INTO users (login, password, fio, email, phone, role_id) VALUES (?, ?, ?, ?, ?, 2)");
+                $stmt->execute([$login, $hash, $fio, $email, $phone]);
+                $success = 'Регистрация успешна! <a href="auth.php">Войдите</a>.';
+            }
+        } catch (PDOException $e) {
+            $error = 'Ошибка базы данных: ' . $e->getMessage();
+        }
+    }
+}
 
 ob_start();
 ?>
 <div class="form-container">
     <h2 style="text-align: center; margin-bottom: 20px;">Регистрация</h2>
-    <form action="#" method="POST">
+
+    <?php if ($error): ?><div style="color: red; text-align: center; margin-bottom: 15px;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
+    <?php if ($success): ?><div style="color: green; text-align: center; margin-bottom: 15px;"><?= $success ?></div><?php endif; ?>
+
+    <form action="" method="POST">
         <div class="form-group">
             <label>Логин</label>
             <input type="text" name="login" required>
@@ -31,7 +71,6 @@ ob_start();
         <div class="form-group">
             <label>Адрес эл. почты</label>
             <input type="email" name="email" required>
-            <span class="error-text">Неверный формат электронной почты</span>
         </div>
         <div class="form-group">
             <label>Телефон</label>

@@ -1,10 +1,24 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+
 $pageTitle   = $pageTitle   ?? 'Корочки.Есть';
 $breadcrumbs = $breadcrumbs ?? [];
-$navButtons  = $navButtons  ?? [];
 $content     = $content     ?? '';
+$logoPath    = '/DE/korochki/media/image02.jpg';
 
-$logoPath = '/DE/korochki/media/image02.jpg';
+// Динамическое меню в зависимости от роли
+$navButtons = [];
+if (isset($_SESSION['user_id'])) {
+    $navButtons[] = ['title' => 'Мои заявки', 'url' => '/DE/korochki/pages/zayavki.php'];
+    $navButtons[] = ['title' => 'Новая заявка', 'url' => '/DE/korochki/pages/new.php'];
+    if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 1) {
+        $navButtons[] = ['title' => 'Админка', 'url' => '/DE/korochki/pages/admin.php'];
+    }
+    $navButtons[] = ['title' => 'Выход', 'url' => '/DE/korochki/pages/logout.php'];
+} else {
+    $navButtons[] = ['title' => 'Вход', 'url' => '/DE/korochki/pages/auth.php'];
+    $navButtons[] = ['title' => 'Регистрация', 'url' => '/DE/korochki/pages/register.php'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -22,13 +36,12 @@ $logoPath = '/DE/korochki/media/image02.jpg';
             <img src="<?= $logoPath ?>" alt="Логотип">
             <span class="site-title">Корочки.есть</span>
         </a>
-        
         <div class="header-actions">
             <div class="search-box">
                 <input type="text" placeholder="Search">
             </div>
             <?php foreach ($navButtons as $btn): ?>
-                <a href="<?= htmlspecialchars($btn['url'] ?? '#') ?>" class="nav-btn">
+                <a href="<?= htmlspecialchars($btn['url']) ?>" class="nav-btn">
                     <?= htmlspecialchars($btn['title']) ?>
                 </a>
             <?php endforeach; ?>
