@@ -1,5 +1,4 @@
 <?php
-session_start();
-session_destroy();
-header('Location: /DE/korochki/pages/index.php');
+$query = http_build_query($_GET);
+header('Location: ../logout.php' . ($query === '' ? '' : '?' . $query), true, 307);
 exit;

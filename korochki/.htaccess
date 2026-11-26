@@ -1,0 +1,5 @@
+Options -Indexes
+DirectoryIndex index.php
+<FilesMatch "^(config\.php|.*\.sql|README\.md|CHECKLIST\.md)$">
+Require all denied
+</FilesMatch>
