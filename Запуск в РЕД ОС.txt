@@ -1,0 +1,37 @@
+Запуск Корочки.есть и Портфолио в РЕД ОС
+
+Команды выполняются в терминале РЕД ОС. Предполагается, что XAMPP уже установлен в /opt/lampp.
+
+1. Скачай репозиторий
+
+git clone --depth 1 https://github.com/Kusmanito/DE.git ~/DE-kusmanito
+
+Если Git не установлен, выполни sudo dnf install git и повтори скачивание. В аудитории без интернета используй выданный локальный Git-репозиторий с тем же каталогом назначения.
+
+2. Скопируй сайты и создай хранилище
+
+sudo mkdir -p /opt/lampp/htdocs/korochki /opt/lampp/htdocs/portfolio
+sudo cp -R "$HOME/DE-kusmanito/korochki/." /opt/lampp/htdocs/korochki/
+sudo cp -R "$HOME/DE-kusmanito/Портфолио/." /opt/lampp/htdocs/portfolio/
+sudo install -d -m 0750 -o daemon -g daemon /opt/lampp/portfolio-storage
+
+Сохрани кавычки и точку после косой черты. Убедись, что папки сайтов свободны. Если Apache работает под другим пользователем или группой, подставь значения User и Group из /opt/lampp/etc/httpd.conf в команду install.
+
+3. Запусти XAMPP и подготовь базы
+
+sudo /opt/lampp/lampp start
+/opt/lampp/bin/mysqladmin -u root ping
+
+После ответа «mysqld is alive» импортируй только новые базы. При наличии рабочих данных пропусти импорт соответствующей базы.
+
+/opt/lampp/bin/mysql --default-character-set=utf8mb4 -u root < /opt/lampp/htdocs/korochki/korochki_db.sql
+/opt/lampp/bin/mysql --default-character-set=utf8mb4 -u root < /opt/lampp/htdocs/portfolio/portfolio.sql
+
+4. Открой сайты в браузере внутри РЕД ОС
+
+Корочки.есть    http://localhost/korochki/
+Портфолио      http://localhost/portfolio/
+
+В обеих чистых базах администратор Admin, пароль KorokNET. После перезагрузки достаточно снова запустить XAMPP.
+
+Портфолио требует PHP 8.1+ с pdo_mysql, mbstring и fileinfo. В Apache с mod_php лимиты загрузки задаёт .htaccess. При другой конфигурации установи upload_max_filesize = 10M и post_max_size = 14M в php.ini.

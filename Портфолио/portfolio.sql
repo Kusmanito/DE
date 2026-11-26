@@ -70,4 +70,3 @@ INSERT IGNORE INTO statuses VALUES (1, 'На проверке'), (2, 'Подтв
 INSERT IGNORE INTO users (id, login, password_hash, full_name, phone, email, role_id) VALUES
     (1, 'Admin', '$2y$10$X82Me1A9sl5q21VFLeo0Tu.YYHNTbHCDeXcz22ZKmo.6q94VSEhHS',
      'Куратор портфолио', '8(999)123-45-67', 'admin@example.test', 1);
-
