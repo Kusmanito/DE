@@ -1,0 +1,9 @@
+Options -Indexes
+DirectoryIndex index.php
+<FilesMatch "^(config\.php|.*\.sql)$">
+    Require all denied
+</FilesMatch>
+<IfModule php_module>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 14M
+</IfModule>
